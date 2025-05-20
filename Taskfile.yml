@@ -11,5 +11,5 @@ tasks:
       - docker build . -t portable-faster-whisper
   bash:
     cmds:
-      - docker run --gpus all -it portable-faster-whisper /bin/bash
+      - docker run --gpus all -v ${PWD}:/workspace -it portable-faster-whisper /bin/bash
     silent: true
