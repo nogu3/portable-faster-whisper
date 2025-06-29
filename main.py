@@ -1,9 +1,10 @@
 import argparse
+import os
 from faster_whisper import WhisperModel
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Transcribe audio file using Faster Whisper')
-    parser.add_argument('input_file', help='Input audio file path')
+    parser.add_argument('input_file', help='Input audio filename (e.g., audio.mp3). Assumed to be in the "inputs" directory.')
     return parser.parse_args()
 
 model_size = "large-v3"
@@ -12,10 +13,11 @@ model_size = "large-v3"
 model = WhisperModel(
     model_size,
     device="cuda",
-    # compute_type="float16",
-    compute_type="float32",
+    compute_type="float16",
+    # compute_type="float32",
     device_index=0,  # 明示的にGPU 0を指定
     num_workers=2,    # 並列処理を有効化
+    download_root="/workspace/.cache/models"
 )
 
 # or run on GPU with INT8
@@ -54,11 +56,17 @@ japanese_parameters = {
 
 }
 
-parameters = japanese_parameters
+# parameters = japanese_parameters
+parameters = default_parameters
 
 args = parse_args()
+
+# Construct the full path to the input file in the 'inputs' directory
+input_dir = "inputs"
+full_input_file_path = os.path.join(input_dir, args.input_file)
+
 segments, info = model.transcribe(
-    args.input_file, 
+    full_input_file_path, 
     **parameters,
 )
 
@@ -66,7 +74,8 @@ print("Detected language '%s' with probability %f" % (info.language, info.langua
 
 # 入力ファイル名から出力ファイル名を生成
 input_filename = args.input_file
-output_filename = input_filename.rsplit(".", 1)[0] + "_transcript.txt"
+output_dir = "outputs"
+output_filename = os.path.join(output_dir, f"{input_filename.rsplit('.', 1)[0]}_transcript.txt")
 
 # 全セグメントのテキストを準備
 output_text = [f"Detected language: {info.language} (probability: {info.language_probability:.2f})\n\n"]
