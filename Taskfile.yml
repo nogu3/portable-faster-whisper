@@ -11,5 +11,9 @@ tasks:
       - docker build . -t portable-faster-whisper
   bash:
     cmds:
-      - docker run --gpus all -v ${PWD}:/workspace -it portable-faster-whisper /bin/bash
+      - docker run --gpus all -v ${PWD}:/workspace -w /workspace -it portable-faster-whisper /bin/bash
     silent: true
+  convert-audio:
+    cmds:
+      - docker run -v ${PWD}:/workspace -w /workspace -it portable-faster-whisper python convert_audio.py
+
