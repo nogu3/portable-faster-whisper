@@ -4,7 +4,7 @@ from faster_whisper import WhisperModel
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Transcribe audio file using Faster Whisper')
-    parser.add_argument('input_file', help='Input audio filename (e.g., audio.mp3). Assumed to be in the "inputs" directory.')
+    parser.add_argument('input_file', nargs='+', help='Input audio filenames (e.g., audio1.mp3 audio2.mp3). Assumed to be in the "inputs" directory.')
     return parser.parse_args()
 
 model_size = "large-v3"
@@ -63,34 +63,37 @@ args = parse_args()
 
 # Construct the full path to the input file in the 'inputs' directory
 input_dir = "inputs"
-full_input_file_path = os.path.join(input_dir, args.input_file)
 
-segments, info = model.transcribe(
-    full_input_file_path, 
-    **parameters,
-)
-
-print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
-
-# 入力ファイル名から出力ファイル名を生成
-input_filename = args.input_file
 output_dir = "outputs"
-output_filename = os.path.join(output_dir, f"{input_filename.rsplit('.', 1)[0]}_transcript.txt")
 
-# 全セグメントのテキストを準備
-output_text = [f"Detected language: {info.language} (probability: {info.language_probability:.2f})\n\n"]
+for input_file in args.input_file:
+    full_input_file_path = os.path.join(input_dir, input_file)
 
-for segment in segments:
-    start_time = f"{int(segment.start // 60):02d}:{int(segment.start % 60):02d}"
-    end_time = f"{int(segment.end // 60):02d}:{int(segment.end % 60):02d}"
-    line = f"[{start_time} -> {end_time}] {segment.text}"
-    
-    # コンソールに出力
-    print(line)
-    
-    # 出力テキストに追加
-    output_text.append(line)
+    segments, info = model.transcribe(
+        full_input_file_path, 
+        **parameters,
+    )
 
-# 全てのテキストを一度にファイルに書き込み
-with open(output_filename, "w", encoding="utf-8") as f:
-    f.write("\n".join(output_text))
+    print(f"Detected language '{info.language}' with probability {info.language_probability}")
+
+    # 入力ファイル名から出力ファイル名を生成
+    input_filename = input_file
+    output_filename = os.path.join(output_dir, f"{input_filename.rsplit('.', 1)[0]}_transcript.txt")
+
+    # 全セグメントのテキストを準備
+    output_text = [f"Detected language: {info.language} (probability: {info.language_probability:.2f})\n\n"]
+
+    for segment in segments:
+        start_time = f"{int(segment.start // 60):02d}:{int(segment.start % 60):02d}"
+        end_time = f"{int(segment.end // 60):02d}:{int(segment.end % 60):02d}"
+        line = f"[{start_time} -> {end_time}] {segment.text}"
+        
+        # コンソールに出力
+        print(line)
+        
+        # 出力テキストに追加
+        output_text.append(line)
+
+    # 全てのテキストを一度にファイルに書き込み
+    with open(output_filename, "w", encoding="utf-8") as f:
+        f.write("\n".join(output_text))
