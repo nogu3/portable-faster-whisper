@@ -52,7 +52,7 @@ japanese_parameters = {
     "without_timestamps": True,        # タイムスタンプ無し
     "condition_on_previous_text": True, # 前文脈を引き継ぎ一貫性UP
     "suppress_blank": True,            # 空白抑制
-    "initial_prompt": "以下は日本語の打ち合わせ音声です。議事録として正確に文字起こししてください。句読点（、。）を適切に使用してください。",
+    "initial_prompt": "以下は日本語の住宅に関する打ち合わせや説明の音声です。正確に文字起こししてください。句読点（、。）を適切に使用してください。",
 }
 
 parameters = japanese_parameters
