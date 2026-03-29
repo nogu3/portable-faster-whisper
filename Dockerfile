@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
+FROM nvidia/cuda:12.9.1-cudnn-runtime-ubuntu22.04
 
 RUN apt-get update && apt-get install -y \
     python3 \
@@ -13,4 +13,5 @@ RUN useradd -m -s /bin/bash zen
 USER zen
 WORKDIR /home/zen
 
-RUN pip install faster-whisper
+COPY requirements.txt .
+RUN pip install -r requirements.txt
