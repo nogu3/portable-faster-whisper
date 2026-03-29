@@ -2,18 +2,22 @@
 
 version: '3'
 
-vars:
-  GREETING: Hello, World!
-
 tasks:
   build:
     cmds:
       - docker build . -t portable-faster-whisper
-  bash:
+  transcribe:
+    desc: "文字起こしを実行する。使い方: task transcribe -- ファイル名.mp3"
     cmds:
-      - docker run --gpus all -v ${PWD}:/workspace -w /workspace -it portable-faster-whisper /bin/bash
-    silent: true
+      - docker run --gpus all -v ${PWD}:/workspace -w /workspace portable-faster-whisper python main.py {{.CLI_ARGS}}
   convert-audio:
+    desc: "inputsディレクトリのm4aファイルをmp3に変換する"
     cmds:
-      - docker run -v ${PWD}:/workspace -w /workspace -it portable-faster-whisper python convert_audio.py
-
+      - docker run -v ${PWD}:/workspace -w /workspace portable-faster-whisper python convert_audio.py
+  run:
+    desc: "m4a変換→文字起こしをまとめて実行する。使い方: task run -- ファイル名.mp3"
+    cmds:
+      - task: convert-audio
+      - task: transcribe
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
